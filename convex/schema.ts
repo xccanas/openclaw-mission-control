@@ -47,6 +47,7 @@ export default defineSchema({
 		title: v.string(),
 		content: v.string(),
 		type: v.string(),
+		path: v.optional(v.string()),
 		taskId: v.optional(v.id("tasks")),
 	}),
 	notifications: defineTable({

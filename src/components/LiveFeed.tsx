@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { Id } from "../../convex/_generated/dataModel";
 
 const filters = [
-	{ id: "all", label: "All", active: true },
+	{ id: "all", label: "All" },
 	{ id: "tasks", label: "Tasks", count: 0 },
 	{ id: "comments", label: "Comments", count: 0 },
 	{ id: "decisions", label: "Decisions", count: 0 },
@@ -12,7 +13,13 @@ const filters = [
 ];
 
 const LiveFeed: React.FC = () => {
-	const activities = useQuery(api.queries.listActivities);
+	const [selectedType, setSelectedType] = useState<string>("all");
+	const [selectedAgentId, setSelectedAgentId] = useState<Id<"agents"> | undefined>(undefined);
+
+	const activities = useQuery(api.queries.listActivities, {
+		type: selectedType === "all" ? undefined : selectedType,
+		agentId: selectedAgentId,
+	});
 	const agents = useQuery(api.queries.listAgents);
 
 	if (activities === undefined || agents === undefined) {
@@ -43,10 +50,11 @@ const LiveFeed: React.FC = () => {
 						{filters.map((f) => (
 							<div
 								key={f.id}
+								onClick={() => setSelectedType(f.id)}
 								className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border border-border cursor-pointer flex items-center gap-1 transition-colors ${
-									f.active
+									selectedType === f.id
 										? "bg-[var(--accent-orange)] text-white border-[var(--accent-orange)]"
-										: "bg-muted text-muted-foreground"
+										: "bg-muted text-muted-foreground hover:bg-muted/80"
 								}`}
 							>
 								{f.label}
@@ -55,13 +63,25 @@ const LiveFeed: React.FC = () => {
 					</div>
 
 					<div className="flex flex-wrap gap-1.5">
-						<div className="text-[10px] font-semibold px-2.5 py-1 rounded-full border border-[var(--accent-orange)] text-[var(--accent-orange)] bg-white cursor-pointer">
+						<div
+							onClick={() => setSelectedAgentId(undefined)}
+							className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border cursor-pointer transition-colors ${
+								selectedAgentId === undefined
+									? "border-[var(--accent-orange)] text-[var(--accent-orange)] bg-white"
+									: "border-border bg-white text-muted-foreground hover:bg-muted/50"
+							}`}
+						>
 							All Agents
 						</div>
 						{agents.slice(0, 8).map((a) => (
 							<div
 								key={a._id}
-								className="text-[10px] font-semibold px-2.5 py-1 rounded-full border border-border bg-white text-muted-foreground cursor-pointer flex items-center gap-1"
+								onClick={() => setSelectedAgentId(a._id)}
+								className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border cursor-pointer flex items-center gap-1 transition-colors ${
+									selectedAgentId === a._id
+										? "border-[var(--accent-orange)] text-[var(--accent-orange)] bg-white"
+										: "border-border bg-white text-muted-foreground hover:bg-muted/50"
+								}`}
 							>
 								{a.name}
 							</div>
