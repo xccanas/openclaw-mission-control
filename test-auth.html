@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/convex@latest/dist/convex.min.js"></script>
+</head>
+<body>
+    <h1>Convex Auth Test</h1>
+    <button onclick="testAuth()">Test Authentication</button>
+    <div id="result"></div>
+
+    <script>
+        // Test with your production Convex deployment
+        const convex = new ConvexReactClient('https://terrific-rat-135.convex.cloud');
+        
+        async function testAuth() {
+            try {
+                const result = await fetch('https://terrific-rat-135.convex.site/api/auth/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'test123',
+                        flow: 'signIn'
+                    })
+                });
+                
+                const data = await result.json();
+                document.getElementById('result').innerHTML = `
+                    <h2>Response Status: ${result.status}</h2>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h2>Error:</h2>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
